@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # import uvicorn
 from g4f.client import Client
 import os
-os.environ["OPENROUTER_API_KEY"] = "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"
+os.environ["OPENROUTER_API_KEY"] = "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"
 from openai import OpenAI
 token = os.getenv("OPENROUTER_API_KEY")
 
@@ -26,7 +26,7 @@ def DeepSeek_generate_answer_gpt(prompt: str):
     api_key=token,
     )
     completion = client.chat.completions.create(
-    model="deepseek/deepseek-chat",
+    model="deepseek/deepseek-r1:free",
     messages=[{"role": "user", "content": prompt}]
 )
     return(completion.choices[0].message.content)

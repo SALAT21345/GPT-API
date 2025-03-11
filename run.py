@@ -42,6 +42,6 @@ def DeepSeek_generate_answer_gpt(prompt: str):
         ]
         )
     return(completion.choices[0].message.content)
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # Railway предоставляет порт через переменную окружения
-    uvicorn.run(app, host="0.0.0.0", port=port)
+# if __name__ == "__main__":
+#     port = int(os.getenv("PORT", 8000))  # Railway предоставляет порт через переменную окружения
+#     uvicorn.run(app, host="0.0.0.0", port=port)

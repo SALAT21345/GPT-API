@@ -3,12 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # import uvicorn
 from g4f.client import Client
 import os
-# import asyncio
+os.environ["OPENROUTER_API_KEY"] = "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"
 from openai import OpenAI
 token = os.getenv("OPENROUTER_API_KEY")
-# Фикс для Windows (если используешь Windows)
-# if asyncio.get_event_loop_policy().__class__.__name__ != "WindowsSelectorEventLoopPolicy":
-#     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 app = FastAPI()
 

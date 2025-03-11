@@ -27,8 +27,7 @@ def DeepSeek_generate_answer_gpt(prompt: str):
     )
     completion = client.chat.completions.create(
     model="deepseek/deepseek-chat",
-    messages=[{"role": "user", "content": prompt}],
-    request_timeout=10  # Максимальное ожидание 10 секунд
+    messages=[{"role": "user", "content": prompt}]
 )
     return(completion.choices[0].message.content)
 if __name__ == '__main__':

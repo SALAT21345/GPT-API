@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # import uvicorn
 from g4f.client import Client
-# import os
+import os
 # import asyncio
 from openai import OpenAI
 token = "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"
@@ -15,10 +15,11 @@ app = FastAPI()
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Разрешить все источники
+    allow_origins=["http://127.0.0.1:8080", "https://gpt-api-production-8b3d.up.railway.app"],  # Разрешить все источники
     allow_credentials=True,
-    allow_methods=["GET", "OPTIONS"],  # Разрешенные методы
-    allow_headers=["*"],  # Разрешенные заголовки
+    allow_methods=["GET", "POST", "OPTIONS"],  # Добавьте POST, если нужно
+    allow_headers=["*"],
+    
 )
 
 @app.get("/DeepSeek/{prompt}", tags=['Запрос чату гпт_DeepSeek'], summary='DeepSeek')
@@ -42,6 +43,5 @@ def DeepSeek_generate_answer_gpt(prompt: str):
         ]
         )
     return(completion.choices[0].message.content)
-# if __name__ == "__main__":
-#     port = int(os.getenv("PORT", 8000))  # Railway предоставляет порт через переменную окружения
-#     uvicorn.run(app, host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    app.run(debug=True, port=os.getenv("PORT", default=5000))

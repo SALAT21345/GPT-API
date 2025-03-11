@@ -21,11 +21,10 @@ app = FastAPI()
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:8080", "https://gpt-api-production-8b3d.up.railway.app"],  # Разрешить все источники
+    allow_origins=["*"],  # Разрешает запросы от всех источников
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],  # Добавьте POST, если нужно
-    allow_headers=["*"],
-    
+    allow_methods=["*"],  # Разрешает все методы (GET, POST и т.д.)
+    allow_headers=["*"],  # Разрешает все заголовки
 )
 
 @app.get("/DeepSeek/{prompt}", tags=['Запрос чату гпт_DeepSeek'], summary='DeepSeek')

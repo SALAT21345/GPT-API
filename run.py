@@ -5,7 +5,7 @@ from g4f.client import Client
 import os
 # import asyncio
 from openai import OpenAI
-token = "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"
+token = os.getenv("OPENROUTER_API_KEY")
 # Фикс для Windows (если используешь Windows)
 # if asyncio.get_event_loop_policy().__class__.__name__ != "WindowsSelectorEventLoopPolicy":
 #     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -29,19 +29,10 @@ def DeepSeek_generate_answer_gpt(prompt: str):
     api_key=token,
     )
     completion = client.chat.completions.create(
-        extra_headers={
-            "HTTP-Referer": "<YOUR_SITE_URL>", # Optional. Site URL for rankings on openrouter.ai.
-            "X-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
-        },
-        extra_body={},
-        model="deepseek/deepseek-chat",
-        messages=[
-            {
-            "role": "user",
-            "content": prompt
-            }
-        ]
-        )
+    model="deepseek/deepseek-chat",
+    messages=[{"role": "user", "content": prompt}],
+    request_timeout=10  # Максимальное ожидание 10 секунд
+)
     return(completion.choices[0].message.content)
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))

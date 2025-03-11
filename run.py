@@ -11,8 +11,8 @@ if not token:
     raise ValueError("API-ключ не найден в переменных окружения!")
 
 client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=token,
+  base_url="https://openrouter.ai/api/v1",
+  api_key=token,
 )
 app = FastAPI()
 
@@ -29,9 +29,19 @@ app.add_middleware(
 @app.get("/DeepSeek/{prompt}", tags=['Запрос чату гпт_DeepSeek'], summary='DeepSeek')
 def DeepSeek_generate_answer_gpt(prompt: str):
     completion = client.chat.completions.create(
-    model="deepseek/deepseek-r1:free",
-    messages=[{"role": "user", "content": prompt}]
-)
+    extra_headers={
+        "HTTP-Referer": "<YOUR_SITE_URL>", # Optional. Site URL for rankings on openrouter.ai.
+        "X-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
+    },
+    extra_body={},
+    model="deepseek/deepseek-chat",
+    messages=[
+        {
+        "role": "user",
+        "content": prompt
+        }
+    ]
+    )
     return(completion.choices[0].message.content)
 if __name__ == '__main__':
     app.run(debug=True, port=os.getenv("PORT", default=5000))

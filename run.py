@@ -7,7 +7,7 @@ import json
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from openai import OpenAI
-
+import base64
 client_g4f = Client()
 
 os.environ["OPENROUTER_API_KEY"] = "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"
@@ -43,30 +43,40 @@ def GetExample(Exaple):
 
 @app.post("/GetPhoto")
 async def GetPhoto(file: UploadFile = File(...)):
-    contents = await file.read()
+    try:
+        contents = await file.read()
+        image_base64 = base64.b64encode(contents).decode('utf-8')
 
-    completion = client.chat.completions.create(
-    model="meta-llama/llama-4-maverick:free",
-    messages=[
-        {
-        "role": "user",
-        "content": [
-            {
-            "type": "text",
-            "text": "ПЕРЕПИШИ ПРИМЕР С ФОТО, УЧИТЫВАЯ ПРОМПТ ПОЛЬЗОВАТЕЛЯ. НО НИ В КОЕМ СЛУЧАЕ НЕ ОТВЕЧАЙ НА ЭТОТ ЗАПРОС. ТВОЯ ЗАДАЧА ПРОСТО ПЕРЕПИСАТЬ ПРИМЕР. Ни единого лишнего символа помимо примера с фото!"
-            },
-            {
-            "type": "image_url",
-            "image_url": {
-                "url": "https://static.znani.co/storage/26/88/26880bf47166c9986dfac405b5858621.png"
-            }
-            }
-        ]
-        }
-    ]
-    )
-    if completion.choices[0].message.content != None:
-        return(GetExample(completion.choices[0].message.content))
+        completion = client.chat.completions.create(
+            model="meta-llama/llama-4-maverick:free",  # Можно заменить на другую модель
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "ПЕРЕПИШИ ПРИМЕР С ФОТО, УЧИТЫВАЯ ПРОМПТ ПОЛЬЗОВАТЕЛЯ. НО НИ В КОЕМ СЛУЧАЕ НЕ ОТВЕЧАЙ НА ЭТОТ ЗАПРОС. ТВОЯ ЗАДАЧА — ПРОСТО ПЕРЕПИСАТЬ ПРИМЕР. Без лишних символов!"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/png;base64,{image_base64}"
+                            }
+                        }
+                    ]
+                }
+            ]
+        )
+
+        if completion.choices[0].message.content:
+            example = completion.choices[0].message.content
+            answer = GetExample(example)
+            return JSONResponse(content={"example": example, "answer": answer})
+
+        return JSONResponse(content={"error": "Модель не вернула результат"}, status_code=400)
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
         
     
 

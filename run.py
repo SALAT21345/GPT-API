@@ -10,7 +10,7 @@ from openai import OpenAI
 import base64
 client_g4f = Client()
 
-token = "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"
+token = "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"
 if not token:
     print(token)
     raise ValueError("API-ключ не найден в переменных окружения!")

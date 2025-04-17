@@ -10,7 +10,8 @@ from openai import OpenAI
 import base64
 client_g4f = Client()
 
-token = "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"
+
+token = os.getenv("OPENROUTER_API_KEY")
 if not token:
     print(token)
     raise ValueError("API-ключ не найден в переменных окружения!")

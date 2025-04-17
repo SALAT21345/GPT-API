@@ -5,7 +5,6 @@ import os
 import requests
 import json
 from pydantic import BaseModel
-import dataBase_Controller as BD
 from fastapi.responses import JSONResponse
 from openai import OpenAI
 

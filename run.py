@@ -21,6 +21,8 @@ if valueDebug == 1:
 elif valueDebug == 0:
     DEBUG = False  
 
+
+print(valueDebug)
 token = os.getenv("OPENROUTER_API_KEY")
 if not token:
     print(token)
@@ -32,6 +34,8 @@ client = OpenAI(
   api_key=token,
 )
 app = FastAPI()
+
+
 
 # Настройка CORS
 app.add_middleware(

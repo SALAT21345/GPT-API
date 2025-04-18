@@ -9,7 +9,17 @@ from fastapi.responses import JSONResponse
 from openai import OpenAI
 import base64
 client_g4f = Client()
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+DEBUG = True
+valueDebug = os.getenv("debug")
+if valueDebug == 1:
+    DEBUG = True
+elif valueDebug == 0:
+    DEBUG = False  
 
 token = os.getenv("OPENROUTER_API_KEY")
 if not token:
@@ -67,19 +77,38 @@ async def GetPhoto(file: UploadFile = File(...)):
                 }
             ]
         )
-
-        if completion.choices[0].message.content:
-            example = completion.choices[0].message.content
-            answer = GetExample(example)
-            return JSONResponse(content={"example": example, "answer": answer})
-
-        return JSONResponse(content={"error": "Модель не вернула результат"}, status_code=400)
+        if DEBUG == True:
+            if completion:
+                logger.debug(f"completion: {completion}")
+                if completion.choices:
+                    logger.debug(f"completion.choices: {completion.choices}")
+                    if len(completion.choices) > 0:
+                        logger.debug(f"completion.choices[0]: {completion.choices[0]}")
+                        if completion.choices[0].message:
+                            logger.debug(f"completion.choices[0].message: {completion.choices[0].message}")
+                            if completion.choices[0].message.content:
+                                example = completion.choices[0].message.content
+                                answer = GetExample(example)
+                                return JSONResponse(content={"example": example, "answer": answer})
+                            else:
+                                logger.warning("completion.choices[0].message.content is None")
+                        else:
+                            logger.warning("completion.choices[0].message is None")
+                    else:
+                        logger.warning("len(completion.choices) is 0")
+                else:
+                    logger.warning("completion.choices is None")
+            else:
+                logger.warning("completion is None")
+        else:
+             if completion.choices[0].message.content:
+                                example = completion.choices[0].message.content
+                                answer = GetExample(example)
+                                return JSONResponse(content={"example": example, "answer": answer})
+        #return JSONResponse(content={"error": "Модель не вернула результат"}, status_code=400)
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
-        
-    
-
 @app.get("/DeepSeek/{prompt}", tags=['Запрос чату гпт_DeepSeek'], summary='DeepSeek')
 def DeepSeek_generate_answer_gpt(prompt: str):
     completion = client.chat.completions.create(

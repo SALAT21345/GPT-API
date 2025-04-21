@@ -85,31 +85,30 @@ async def GetPhoto(file: UploadFile = File(...)):
         return JSONResponse(content={"error": str(e)}, status_code=500)
         
     
+class PromptRequest(BaseModel):
+    prompt: str
+    
+@app.post("/DeepSeek", tags=['Запрос чату гпт_DeepSeek'], summary='DeepSeek')
+def DeepSeek_generate_answer_gpt(request: PromptRequest):
+    prompt = request.prompt
 
-@app.get("/DeepSeek/{prompt}", tags=['Запрос чату гпт_DeepSeek'], summary='DeepSeek')
-def DeepSeek_generate_answer_gpt(prompt: str):
     completion = client.chat.completions.create(
-    extra_headers={
-        "HTTP-Referer": "<YOUR_SITE_URL>", # Optional. Site URL for rankings on openrouter.ai.
-        "X-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
-    },
-    extra_body={},
-    model="deepseek/deepseek-chat-v3-0324:free",
-    messages=[
-        {
-        "role": "user",
-        "content": prompt
-        }
-    ]
+        extra_headers={
+            "HTTP-Referer": "<YOUR_SITE_URL>",
+            "X-Title": "<YOUR_SITE_NAME>",
+        },
+        model="deepseek/deepseek-chat-v3-0324:free",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
     )
-    if completion:
-        if completion.choices:
-            if len(completion.choices) > 0:
-                return(completion.choices[0].message.content)
-            else:
-                print(completion)
-        else:
-            print("Ошибка: ", completion.error['message'])
+
+    if completion and completion.choices and len(completion.choices) > 0:
+        return JSONResponse(content={"response": completion.choices[0].message.content})
+    return JSONResponse(content={"error": "Ответ не получен"}, status_code=400)
             
             
 

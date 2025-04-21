@@ -9,33 +9,25 @@ from fastapi.responses import JSONResponse
 from openai import OpenAI
 import base64
 client_g4f = Client()
-import logging
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+###### SETTINGS #######
 
-DEBUG = True
-valueDebug = os.getenv("debug")
-if valueDebug == 1:
-    DEBUG = True
-elif valueDebug == 0:
-    DEBUG = False  
+Textmodels = ['google/gemma-3-1b-it:free', ]
+ActiveModel = ''
 
+###### SETTINGS #######
 
-print(valueDebug)
-token = os.getenv("OPENROUTER_API_KEY")
-if not token:
-    print(token)
-    raise ValueError("API-ключ не найден в переменных окружения!")
-
+# token = os.getenv("OPENROUTER_API_KEY")
+# if not token:
+#     print(token)
+#     raise ValueError("API-ключ не найден в переменных окружения!")
+token = "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"
 
 client = OpenAI(
   base_url="https://openrouter.ai/api/v1",
   api_key=token,
 )
 app = FastAPI()
-
-
 
 # Настройка CORS
 app.add_middleware(
@@ -81,38 +73,19 @@ async def GetPhoto(file: UploadFile = File(...)):
                 }
             ]
         )
-        if DEBUG == True:
-            if completion:
-                logger.debug(f"completion: {completion}")
-                if completion.choices:
-                    logger.debug(f"completion.choices: {completion.choices}")
-                    if len(completion.choices) > 0:
-                        logger.debug(f"completion.choices[0]: {completion.choices[0]}")
-                        if completion.choices[0].message:
-                            logger.debug(f"completion.choices[0].message: {completion.choices[0].message}")
-                            if completion.choices[0].message.content:
-                                example = completion.choices[0].message.content
-                                answer = GetExample(example)
-                                return JSONResponse(content={"example": example, "answer": answer})
-                            else:
-                                logger.warning("completion.choices[0].message.content is None")
-                        else:
-                            logger.warning("completion.choices[0].message is None")
-                    else:
-                        logger.warning("len(completion.choices) is 0")
-                else:
-                    logger.warning("completion.choices is None")
-            else:
-                logger.warning("completion is None")
-        else:
-             if completion.choices[0].message.content:
-                                example = completion.choices[0].message.content
-                                answer = GetExample(example)
-                                return JSONResponse(content={"example": example, "answer": answer})
-        #return JSONResponse(content={"error": "Модель не вернула результат"}, status_code=400)
+
+        if completion.choices[0].message.content:
+            example = completion.choices[0].message.content
+            answer = GetExample(example)
+            return JSONResponse(content={"example": example, "answer": answer})
+
+        return JSONResponse(content={"error": "Модель не вернула результат"}, status_code=400)
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+        
+    
+
 @app.get("/DeepSeek/{prompt}", tags=['Запрос чату гпт_DeepSeek'], summary='DeepSeek')
 def DeepSeek_generate_answer_gpt(prompt: str):
     completion = client.chat.completions.create(
@@ -121,7 +94,7 @@ def DeepSeek_generate_answer_gpt(prompt: str):
         "X-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
     },
     extra_body={},
-    model="deepseek/deepseek-chat",
+    model="deepseek/deepseek-chat-v3-0324:free",
     messages=[
         {
         "role": "user",
@@ -129,12 +102,18 @@ def DeepSeek_generate_answer_gpt(prompt: str):
         }
     ]
     )
-    return(completion.choices[0].message.content)
+    if completion:
+        if completion.choices:
+            if len(completion.choices) > 0:
+                return(completion.choices[0].message.content)
+            else:
+                print(completion)
+        else:
+            print("Ошибка: ", completion.error['message'])
+            
+            
 
 
 # if __name__ == '__main__':
    #  app.run(debug=True, port=os.getenv("PORT", default=5000))  FOR SERVICE
 #    app.run(debug=True)  # FOR LOCALHOST
-
-
-

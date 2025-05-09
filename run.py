@@ -120,9 +120,9 @@ def SendPromptChatGPt(request:PromptRequest):
     )
     
     AnswerGPT = response.choices[0].message.content
-    AnswerGPT.replace("[[Login to OpenAI ChatGPT]]()", "")
-    print("ОТВЕТ ПОСЛЕ ОБРАБОТКИ!!!")
-    print(AnswerGPT)
+    
+    if "[[Login to OpenAI ChatGPT]]()" in AnswerGPT:
+        AnswerGPT = AnswerGPT.replace("[[Login to OpenAI ChatGPT]]()", "")
     return response.choices[0].message.content
             
 

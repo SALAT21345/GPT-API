@@ -88,7 +88,7 @@ async def GetPhoto(file: UploadFile = File(...)):
 class PromptRequest(BaseModel):
     prompt: str
     
-@app.post("/DeepSeek", tags=['Запрос чату гпт_DeepSeek'], summary='DeepSeek')
+@app.post("/DeepSeek", tags=['Запрос DeepSeek'], summary='DeepSeek')
 def DeepSeek_generate_answer_gpt(request: PromptRequest):
     prompt = request.prompt
 
@@ -111,7 +111,7 @@ def DeepSeek_generate_answer_gpt(request: PromptRequest):
     return JSONResponse(content={"error": "Ответ не получен"}, status_code=400)
             
 @app.post("/ChatGPT")
-def SendPromptChatGPt(request:PromptRequest):
+def ChatGPT(request:PromptRequest):
     prompt = request.prompt
     response = client_g4f.chat.completions.create(
     model="gpt-4o",
@@ -126,6 +126,21 @@ def SendPromptChatGPt(request:PromptRequest):
     return response.choices[0].message.content
             
 
+@app.post("/Llama3-3")
+def Llama(request:PromptRequest):
+    prompt = request.prompt
+    completion = client.chat.completions.create(
+    model="nvidia/llama-3.3-nemotron-super-49b-v1:free",
+    messages=[
+        {
+            "role": "user",
+            "content": prompt
+        }
+        ]
+    )
+    if completion and completion.choices and len(completion.choices) > 0:
+        return completion.choices[0].message.content
+    return JSONResponse(content={"error": "Ответ не получен"}, status_code=400)
 
 # if __name__ == '__main__':
    #  app.run(debug=True, port=os.getenv("PORT", default=5000))  FOR SERVICE

@@ -110,6 +110,20 @@ def DeepSeek_generate_answer_gpt(request: PromptRequest):
         return JSONResponse(content={"response": completion.choices[0].message.content})
     return JSONResponse(content={"error": "Ответ не получен"}, status_code=400)
             
+@app.post("/ChatGPT")
+def SendPromptChatGPt(request:PromptRequest):
+    prompt = request.prompt
+    response = client_g4f.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": prompt}],
+    web_search=False
+    )
+    
+    AnswerGPT = response.choices[0].message.content
+    AnswerGPT.replace("[[Login to OpenAI ChatGPT]]()", "")
+    print("ОТВЕТ ПОСЛЕ ОБРАБОТКИ!!!")
+    print(AnswerGPT)
+    return response.choices[0].message.content
             
 
 

@@ -8,6 +8,8 @@ from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from openai import OpenAI
 import base64
+
+
 client_g4f = Client()
 
 ###### SETTINGS #######
@@ -107,7 +109,7 @@ def DeepSeek_generate_answer_gpt(request: PromptRequest):
     )
 
     if completion and completion.choices and len(completion.choices) > 0:
-        return JSONResponse(content={"response": completion.choices[0].message.content})
+        return JSONResponse(content={"text": completion.choices[0].message.content})
     return JSONResponse(content={"error": "Ответ не получен"}, status_code=400)
             
 @app.post("/ChatGPT")
@@ -141,6 +143,17 @@ def Llama(request:PromptRequest):
     if completion and completion.choices and len(completion.choices) > 0:
         return completion.choices[0].message.content
     return JSONResponse(content={"error": "Ответ не получен"}, status_code=400)
+
+@app.post("/Flux")
+def GenerateImage(request:PromptRequest):
+    response = client_g4f.images.generate(
+            model="flux",
+            prompt=request.prompt,
+            response_format="url"
+        )
+    if response:
+        image_url = response.data[0].url
+        print(image_url)
 
 # if __name__ == '__main__':
    #  app.run(debug=True, port=os.getenv("PORT", default=5000))  FOR SERVICE
